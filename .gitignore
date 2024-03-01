@@ -1,0 +1,4 @@
+/python/*/.exercism/
+/python/*/.pytest_cache/
+/python/*/.idea/
+/.idea
