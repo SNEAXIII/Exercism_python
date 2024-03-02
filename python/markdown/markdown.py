@@ -1,12 +1,16 @@
 import re
 
-print(re.search("#* ","### test").group())
-def transform_header(line:str):
+print(re.search("#* ", "### test").group())
+
+
+def transform_header(line: str):
     find = re.search("^#{1,6}\s", line)
     if find:
         count = len(find.group())
         return f"<h{count - 1}>{line[count:]}</h{count - 1}>"
     return line
+
+
 def parse(markdown):
     lines = markdown.split('\n')
     res = ''
@@ -22,13 +26,11 @@ def parse(markdown):
                 m1 = re.match('^(.*)__(.*)__(.*)', curr)
                 if m1:
                     curr = m1.group(1) + '<strong>' + \
-                        m1.group(2) + '</strong>' + m1.group(3)
-                    is_bold = True
+                           m1.group(2) + '</strong>' + m1.group(3)
                 m1 = re.match('(.*)_(.*)_(.*)', curr)
                 if m1:
                     curr = m1.group(1) + '<em>' + m1.group(2) + \
-                        '</em>' + m1.group(3)
-                    is_italic = True
+                           '</em>' + m1.group(3)
                 line = '<ul><li>' + curr + '</li>'
             else:
                 is_bold = False
@@ -42,10 +44,10 @@ def parse(markdown):
                     is_italic = True
                 if is_bold:
                     curr = m1.group(1) + '<strong>' + \
-                        m1.group(2) + '</strong>' + m1.group(3)
+                           m1.group(2) + '</strong>' + m1.group(3)
                 if is_italic:
                     curr = m1.group(1) + '<em>' + m1.group(2) + \
-                        '</em>' + m1.group(3)
+                           '</em>' + m1.group(3)
                 line = '<li>' + curr + '</li>'
         else:
             if in_list:
