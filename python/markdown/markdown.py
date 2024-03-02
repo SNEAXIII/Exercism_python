@@ -34,13 +34,11 @@ def transform_paragraph_to_html(line: str):
 
 
 def add_ul_tags(lines: list):
-    # if there is any <li> in lines, we need to add <ul>
-    # at the begining and the end of the list
-    list_map_in_list = (
-        line.startswith("<li>") for line in lines
-    )
+    list_map_in_list = tuple(line.startswith("<li>") for line in lines)
     if not any(list_map_in_list):
         return
+    # if there is any <li> in lines, we need to add <ul>
+    # at the begining and the end of the list
     open_ul, close_ul = "<ul>", "</ul>"
     is_previously_in_list = False
     for index, is_currently_in_list in enumerate(list_map_in_list):
