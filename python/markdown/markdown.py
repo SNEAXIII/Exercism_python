@@ -48,13 +48,16 @@ def parse(markdown: str):
         line = transform_paragraph(line)
         lines[index] = line
     print(list_map_in_list)
-    is_actually_in_list = False
-    for index, is_in_list in enumerate(list_map_in_list):
-        if is_in_list and not is_actually_in_list:
-            lines[index] = "<ul>" + lines[index]
-        if not is_in_list and is_actually_in_list:
-            lines[index-1] += "</ul>"
-        is_actually_in_list = is_in_list
+    if any(list_map_in_list):
+        is_actually_in_list = False
+        for index, is_in_list in enumerate(list_map_in_list):
+            if is_in_list and not is_actually_in_list:
+                lines[index] = "<ul>" + lines[index]
+            if not is_in_list and is_actually_in_list:
+                lines[index-1] += "</ul>"
+            is_actually_in_list = is_in_list
+        if is_actually_in_list:
+            lines[index] += "</ul>"
     print(f"{lines = }")
     return "".join(lines)
 
