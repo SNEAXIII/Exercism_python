@@ -21,21 +21,24 @@ def transform_font_weight_to_html(line: str):
     return line
 
 
-def transform_list_element_to_html(line: str, list_map_in_list: list):
-    is_in_list = line.startswith(r"* ")
-    list_map_in_list.append(is_in_list)
-    if is_in_list:
+def transform_list_element_to_html(line: str):
+    if line.startswith(r"* "):
         line = f"<li>{line[2:]}</li>"
     return line
 
 
 def transform_paragraph_to_html(line: str):
-    if match('<h|<p|<li', line):
+    if match('<h|<li', line):
         return line
     return f"<p>{line}</p>"
 
 
-def add_ul_tags(lines: list, list_map_in_list: list):
+def add_ul_tags(lines: list):
+    # if there is any <li> in lines, we need to add <ul>
+    # at the begining and the end of the list
+    list_map_in_list = (
+        line.startswith("<li>") for line in lines
+    )
     if not any(list_map_in_list):
         return
     open_ul, close_ul = "<ul>", "</ul>"
@@ -50,19 +53,22 @@ def add_ul_tags(lines: list, list_map_in_list: list):
         lines[-1] += close_ul
 
 
-def process_line(line: str, list_map_in_list: list):
+def process_line(line: str):
+    # Hashtags will be replaced with <h>
     line = transform_header_to_html(line)
+    # "_" and "__" will be replaced with <em> and <strong>
     line = transform_font_weight_to_html(line)
-    line = transform_list_element_to_html(line, list_map_in_list)
+    # Stars will be replaced with <li>
+    line = transform_list_element_to_html(line)
+    # Lines without <li> or <h> will become <p>
     line = transform_paragraph_to_html(line)
     return line
 
 
 def parse(markdown: str):
     lines = markdown.split('\n')
-    list_map_in_list = []
     for index, line in enumerate(lines):
-        line = process_line(line, list_map_in_list)
+        line = process_line(line)
         lines[index] = line
-    add_ul_tags(lines, list_map_in_list)
+    add_ul_tags(lines)
     return "".join(lines)
