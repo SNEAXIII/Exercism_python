@@ -22,6 +22,12 @@ def tranform_strong_em(line: str):
         line %= tuple_substitute * (count // 2)
     return line
 
+def tranform_li(line:str):
+    is_start_with_star = line.startswith(r"* ")
+    if is_start_with_star:
+        line = f"<li>{line[2:]}</li>"
+    return line,is_start_with_star
+
 
 def transform_paragraph(line: str):
     if re.match('<h|<ul|<p|<li', line):
@@ -37,12 +43,10 @@ def parse(markdown: str):
         line = transform_header(line)
         line = tranform_strong_em(line)
         if line.startswith(r"* "):
-            curr = line[2:]
+            line = f"<li>{line[2:]}</li>"
             if not in_list:
                 in_list = True
-                line = '<ul><li>' + curr + '</li>'
-            else:
-                line = '<li>' + curr + '</li>'
+                line = '<ul>' + line
         else:
             if in_list:
                 in_list_append = True
