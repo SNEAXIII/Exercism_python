@@ -22,40 +22,43 @@ def tranform_strong_em(line: str):
         line %= tuple_substitute * (count // 2)
     return line
 
-def tranform_li(line:str):
+
+def tranform_li(line: str, list_map_in_list: list):
     is_start_with_star = line.startswith(r"* ")
+    list_map_in_list.append(is_start_with_star)
     if is_start_with_star:
         line = f"<li>{line[2:]}</li>"
-    return line,is_start_with_star
+    return line
 
 
 def transform_paragraph(line: str):
-    if re.match('<h|<ul|<p|<li', line):
+    if re.match('<h|<p|<li', line):
         return line
     return f"<p>{line}</p>"
 
 
 def parse(markdown: str):
     lines = markdown.split('\n')
-    in_list = False
-    in_list_append = False
+    print(f"{lines = }")
+    list_map_in_list = []
     for index, line in enumerate(lines):
         line = transform_header(line)
         line = tranform_strong_em(line)
-        if line.startswith(r"* "):
-            line = f"<li>{line[2:]}</li>"
-            if not in_list:
-                in_list = True
-                line = '<ul>' + line
-        else:
-            if in_list:
-                in_list_append = True
-                in_list = False
+        line = tranform_li(line, list_map_in_list)
         line = transform_paragraph(line)
-        if in_list_append:
-            line = '</ul>' + line
-            in_list_append = False
         lines[index] = line
-    if in_list:
-        lines[index] += '</ul>'
+    print(list_map_in_list)
+    is_actually_in_list = False
+    for index, is_in_list in enumerate(list_map_in_list):
+        if is_in_list and not is_actually_in_list:
+            lines[index] = "<ul>" + lines[index]
+        if not is_in_list and is_actually_in_list:
+            lines[index-1] += "</ul>"
+        is_actually_in_list = is_in_list
+    print(f"{lines = }")
     return "".join(lines)
+
+
+
+print(parse("# Start a list\n* Item 1\n* Item 2\nEnd a list"))
+print("<h1>Start a list</h1><ul><li>Item 1</li><li>Item 2</li></ul><p>End a list</p>")
