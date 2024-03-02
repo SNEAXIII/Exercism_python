@@ -2,11 +2,10 @@ from re import search, match
 
 
 def transform_header_to_html(line: str):
-    find = search("^#{1,6}\s", line)
-    if not find:
-        return line
-    count = len(find.group())
-    return f"<h{count - 1}>{line[count:]}</h{count - 1}>"
+    if find := search("^#{1,6}\s", line) :
+        count = len(find.group())
+        return f"<h{count - 1}>{line[count:]}</h{count - 1}>"
+    return line
 
 
 def transform_font_weight_to_html(line: str):
