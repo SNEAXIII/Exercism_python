@@ -30,14 +30,13 @@ def transform_paragraph(line: str):
 
 
 def parse(markdown: str):
-    res = ''
+    lines = markdown.split('\n')
     in_list = False
     in_list_append = False
-    for index, line in enumerate(markdown.split('\n')):
+    for index, line in enumerate(lines):
         line = transform_header(line)
         line = tranform_strong_em(line)
-        m = line.startswith(r"* ")
-        if m:
+        if line.startswith(r"* "):
             curr = line[2:]
             if not in_list:
                 in_list = True
@@ -52,7 +51,7 @@ def parse(markdown: str):
         if in_list_append:
             line = '</ul>' + line
             in_list_append = False
-        res += line
+        lines[index] = line
     if in_list:
-        res += '</ul>'
-    return res
+        lines[index] += '</ul>'
+    return "".join(lines)
