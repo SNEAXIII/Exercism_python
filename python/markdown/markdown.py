@@ -23,33 +23,32 @@ def tranform_strong_em(line: str):
     return line
 
 
+def transform_paragraph(line: str):
+    if re.match('<h|<ul|<p|<li', line):
+        return line
+    return f"<p>{line}</p>"
+
+
 def parse(markdown: str):
-    print()
-    number_of_star = markdown.count("*")
-    print(f"{number_of_star = }")
-    lines = markdown.split('\n')
     res = ''
     in_list = False
     in_list_append = False
-    for line in lines:
+    for index, line in enumerate(markdown.split('\n')):
         line = transform_header(line)
         line = tranform_strong_em(line)
-        m = re.match(r'\* (.*)', line)
+        m = line.startswith(r"* ")
         if m:
+            curr = line[2:]
             if not in_list:
                 in_list = True
-                curr = m.group(1)
                 line = '<ul><li>' + curr + '</li>'
             else:
-                curr = m.group(1)
                 line = '<li>' + curr + '</li>'
         else:
             if in_list:
                 in_list_append = True
                 in_list = False
-        m = re.match('<h|<ul|<p|<li', line)
-        if not m:
-            line = '<p>' + line + '</p>'
+        line = transform_paragraph(line)
         if in_list_append:
             line = '</ul>' + line
             in_list_append = False
