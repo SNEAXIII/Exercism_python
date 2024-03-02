@@ -1,7 +1,7 @@
 from re import search, match
 
 
-def transform_header(line: str):
+def transform_header_to_html(line: str):
     find = search("^#{1,6}\s", line)
     if not find:
         return line
@@ -9,7 +9,7 @@ def transform_header(line: str):
     return f"<h{count - 1}>{line[count:]}</h{count - 1}>"
 
 
-def tranform_strong_em(line: str):
+def transform_font_weight_to_html(line: str):
     dict_to_replace = {
         "__": ("<strong>", "</strong>"),
         "_": ("<em>", "</em>")
@@ -21,7 +21,7 @@ def tranform_strong_em(line: str):
     return line
 
 
-def transform_li(line: str, list_map_in_list: list):
+def transform_list_element_to_html(line: str, list_map_in_list: list):
     is_in_list = line.startswith(r"* ")
     list_map_in_list.append(is_in_list)
     if is_in_list:
@@ -29,13 +29,13 @@ def transform_li(line: str, list_map_in_list: list):
     return line
 
 
-def transform_paragraph(line: str):
+def transform_paragraph_to_html(line: str):
     if match('<h|<p|<li', line):
         return line
     return f"<p>{line}</p>"
 
 
-def transform_ul(lines: list, list_map_in_list: list):
+def add_ul_tags(lines: list, list_map_in_list: list):
     if not any(list_map_in_list):
         return
     open_ul, close_ul = "<ul>", "</ul>"
@@ -51,10 +51,10 @@ def transform_ul(lines: list, list_map_in_list: list):
 
 
 def process_line(line: str, list_map_in_list: list):
-    line = transform_header(line)
-    line = tranform_strong_em(line)
-    line = transform_li(line, list_map_in_list)
-    line = transform_paragraph(line)
+    line = transform_header_to_html(line)
+    line = transform_font_weight_to_html(line)
+    line = transform_list_element_to_html(line, list_map_in_list)
+    line = transform_paragraph_to_html(line)
     return line
 
 
@@ -64,5 +64,5 @@ def parse(markdown: str):
     for index, line in enumerate(lines):
         line = process_line(line, list_map_in_list)
         lines[index] = line
-    transform_ul(lines, list_map_in_list)
+    add_ul_tags(lines, list_map_in_list)
     return "".join(lines)
