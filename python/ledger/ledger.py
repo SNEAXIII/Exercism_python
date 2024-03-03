@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from operator import itemgetter, attrgetter
 
 class LedgerEntry:
     def __init__(self):
@@ -27,16 +27,8 @@ class LedgerEntry:
         else:
             str_change = f"({currency}{money})"
         return f"{str_change:>13}"
-
-    # def get_format_change_euro(self):
-    #     money = abs(self.change / 100)
-    #     money = f"{money:,.2f}"
-    #     if self.change >= 0:
-    #         str_change = f"€{money} "
-    #     else:
-    #         str_change = f"(€{money})"
-    #     return f"{str_change:>13}"
-
+def multi_sort(entries:list[LedgerEntry])->list[LedgerEntry]:
+    return sorted(entries, key=attrgetter("date","change","description"))
 
 def create_entry(date, description, change):
     entry = LedgerEntry()
@@ -51,17 +43,19 @@ translate_currency = {
     "EUR": "€"
 }
 translate_languages = {
-    "en_US" : ("Date","Description","Change"),
-    "nl_NL": ("Datum","Omschrijving","Verandering")
+    "en_US": ("Date", "Description", "Change"),
+    "nl_NL": ("Datum", "Omschrijving", "Verandering")
 }
 
 def format_entries(currency, locale, entries):
     print()
+    entries = multi_sort(entries)
+    # date,Description,Change = translate_languages
     if locale == "en_US":
         currency = translate_currency[currency]
         table = f"{'Date':<10} | {'Description':<25} | {'Change':<13}"
 
-        for entry in sorted(entries, key=lambda x: x.change):
+        for entry in entries:
             table += "\n"
 
             date_str = f"{entry:str_date_en_US}"
@@ -207,3 +201,18 @@ def format_entries(currency, locale, entries):
                 table += change_str
         print("\n" + table)
         return table
+
+
+currency = "USD"
+locale = "en_US"
+entries = [
+    create_entry("2015-03-12", "Buy aaa", -12345),
+    create_entry("2015-03-12", "Buy aaaaaa", -12345),
+    create_entry("2028-03-12", "Buy aaaa", 90000),
+    create_entry("2015-03-12", "Buy aaaaaaaaa", -12345),
+    create_entry("2015-03-12", "Buy aaa", 1000),
+    create_entry("2028-03-12", "Buy aaaaaaaaaa", -12345),
+    create_entry("2028-03-12", "Buy aaaaaaa", -12345),
+    create_entry("2028-03-12", "Buy aaaaaaaaaaaaa", 500),
+]
+format_entries(currency, locale, entries)
