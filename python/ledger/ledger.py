@@ -50,7 +50,10 @@ translate_currency = {
     "USD": "$",
     "EUR": "€"
 }
-
+translate_languages = {
+    "en_US" : ("Date","Description","Change"),
+    "nl_NL": ("Datum","Omschrijving","Verandering")
+}
 
 def format_entries(currency, locale, entries):
     print()
@@ -58,18 +61,8 @@ def format_entries(currency, locale, entries):
         currency = translate_currency[currency]
         table = f"{'Date':<10} | {'Description':<25} | {'Change':<13}"
 
-        while len(entries) > 0:
+        for entry in sorted(entries, key=lambda x: x.change):
             table += "\n"
-
-            min_entry_index = 0
-            for i in range(len(entries)):
-                entry = entries[i]
-                min_entry = entries[min_entry_index]
-                if entry.date < min_entry.date or entry.change < min_entry.change or entry.description < min_entry.description:
-                    min_entry_index = i
-            print(f"{i = }")
-            entry = entries[min_entry_index]
-            entries.pop(min_entry_index)
 
             date_str = f"{entry:str_date_en_US}"
             table += date_str
