@@ -13,12 +13,11 @@ class LedgerEntry:
         self.description = None
         self.change = None
 
-    def __format__(self, format_spec: str) -> str:
-        match format_spec:
-            case "str_concat_description":
-                if len(self.description) > 25:
-                    return f"{self.description:.22}..."
-                return f"{self.description:25}"
+    def get_format_description(self) -> str:
+        if len(self.description) > 25:
+            return f"{self.description:.22}..."
+        return f"{self.description:25}"
+
 
     def get_format_time(self, time_format: str) -> str:
         return self.date.strftime(time_format)
@@ -67,7 +66,7 @@ def format_entries(currency, locale, entries):
 
     for entry in entries:
         date_str = entry.get_format_time(time_format)
-        description = f"{entry:str_concat_description}"
+        description = entry.get_format_description()
         str_change = entry.get_format_change(locale, currency)
         table += f"\n{date_str} | {description} | {str_change:>13}"
     return table
