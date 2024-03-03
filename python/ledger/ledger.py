@@ -34,8 +34,7 @@ class LedgerEntry:
             money = f"{self.change / 100:,.2f}"
             money = money.replace(",", "_").replace(".", ",").replace("_", ".")
             str_change = f"{currency} {money} "
-
-        return f"{str_change:>13}"
+        return str_change
 
 
 def multi_sort(entries: list[LedgerEntry]) -> list[LedgerEntry]:
@@ -61,42 +60,14 @@ translate_languages = {
 
 
 def format_entries(currency, locale, entries):
-    print()
+    currency = translate_currency[currency]
     entries = multi_sort(entries)
     date, description, change, time_format = translate_languages[locale]
     table = f"{date:<10} | {description:<25} | {change:<13}"
 
-    currency = translate_currency[currency]
-
     for entry in entries:
-        table += "\n"
-
         date_str = entry.get_format_time(time_format)
-        print(date_str)
-        table += date_str
-        table += " | "
-
         description = f"{entry:str_concat_description}"
-        table += description
-        table += " | "
-
         str_change = entry.get_format_change(locale, currency)
-        table += str_change
-    print("\n" + table)
+        table += f"\n{date_str} | {description} | {str_change:>13}"
     return table
-
-
-
-currency = "USD"
-locale = "en_US"
-entries = [
-    create_entry("2015-03-12", "Buy aaa", -12345),
-    create_entry("2015-03-12", "Buy aaaaaa", -12345),
-    create_entry("2028-03-12", "Buy aaaa", 90000),
-    create_entry("2015-03-12", "Buy aaaaaaaaa", -12345),
-    create_entry("2015-03-12", "Buy aaa", 1000),
-    create_entry("2028-03-12", "Buy aaaaaaaaaa", -12345),
-    create_entry("2028-03-12", "Buy aaaaaaa", -12345),
-    create_entry("2028-03-12", "Buy aaaaaaaaaaaaa", 500),
-]
-format_entries(currency, locale, entries)
