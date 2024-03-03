@@ -20,15 +20,8 @@ def create_entry(date, description, change):
 def format_entries(currency, locale, entries):
     if locale == "en_US":
         # Generate Header Row
-        table = "Date"
-        for _ in range(7):
-            table += " "
-        table += "| Description"
-        for _ in range(15):
-            table += " "
-        table += "| Change"
-        for _ in range(7):
-            table += " "
+        space = " "
+        table = f"Date{space*7}| Description{space*15}| Change{space*7}"
 
         while len(entries) > 0:
             table += "\n"
