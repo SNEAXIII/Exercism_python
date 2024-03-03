@@ -62,14 +62,17 @@ TRANSLATE_LANGUAGES = {
 
 
 def format_entries(currency: str, locale: str, entries: list) -> str:
-    currency = TRANSLATE_CURRENCY[currency]
+    # Variable setup
     entries = multi_sort(entries)
+    currency = TRANSLATE_CURRENCY[currency]
     date, description, change, time_format = TRANSLATE_LANGUAGES[locale]
     table = f"{date:<10} | {description:<25} | {change:<13}"
 
+    # Looping into each sorted entry
     for entry in entries:
         date_str = entry.get_format_time(time_format)
         description = entry.get_format_description()
         str_change = entry.get_format_change(locale, currency)
         table += f"\n{date_str} | {description} | {str_change:>13}"
+
     return table
