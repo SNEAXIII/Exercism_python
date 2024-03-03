@@ -16,8 +16,26 @@ class LedgerEntry:
             case "str_concat_description":
                 if len(self.description) > 25:
                     return f"{self.description:.22}..."
-                else:
-                    return f"{self.description:25}"
+                return f"{self.description:25}"
+            # case "str_change_us_eur":
+            #     return self.get_format_change_usd("€")
+
+    def get_format_change_us(self, currency: str) -> str:
+        money = f"{abs(self.change / 100):,.2f}"
+        if self.change >= 0:
+            str_change = f"{currency}{money} "
+        else:
+            str_change = f"({currency}{money})"
+        return f"{str_change:>13}"
+
+    # def get_format_change_euro(self):
+    #     money = abs(self.change / 100)
+    #     money = f"{money:,.2f}"
+    #     if self.change >= 0:
+    #         str_change = f"€{money} "
+    #     else:
+    #         str_change = f"(€{money})"
+    #     return f"{str_change:>13}"
 
 
 def create_entry(date, description, change):
@@ -28,11 +46,17 @@ def create_entry(date, description, change):
     return entry
 
 
-def format_entries(currency, locale, entries):
-    if locale == "en_US":
+translate_currency = {
+    "USD": "$",
+    "EUR": "€"
+}
 
-        space = " "
-        table = f"Date{space * 7}| Description{space * 15}| Change{space * 7}"
+
+def format_entries(currency, locale, entries):
+    print()
+    if locale == "en_US":
+        currency = translate_currency[currency]
+        table = f"{'Date':<10} | {'Description':<25} | {'Change':<13}"
 
         while len(entries) > 0:
             table += "\n"
@@ -41,22 +65,9 @@ def format_entries(currency, locale, entries):
             for i in range(len(entries)):
                 entry = entries[i]
                 min_entry = entries[min_entry_index]
-                if entry.date < min_entry.date:
+                if entry.date < min_entry.date or entry.change < min_entry.change or entry.description < min_entry.description:
                     min_entry_index = i
-                    continue
-                if (
-                        entry.date == min_entry.date and
-                        entry.change < min_entry.change
-                ):
-                    min_entry_index = i
-                    continue
-                if (
-                        entry.date == min_entry.date and
-                        entry.change == min_entry.change and
-                        entry.description < min_entry.description
-                ):
-                    min_entry_index = i
-                    continue
+            print(f"{i = }")
             entry = entries[min_entry_index]
             entries.pop(min_entry_index)
 
@@ -68,53 +79,9 @@ def format_entries(currency, locale, entries):
             table += description
             table += " | "
 
-            if currency == "USD":
-                number = abs(entry.change / 100)
-
-                entire_part = int(number)
-
-                decimal_part = f"{number - entire_part:.02f}".replace("0.", ".")
-                entire_part = f"{entire_part:,}"
-
-                if entry.change >= 0:
-                    str_change = f"${entire_part}{decimal_part} "
-                else:
-                    str_change = f"(${entire_part}{decimal_part})"
-
-                str_change = f"{str_change:>13}"
-                table += str_change
-            elif currency == "EUR":
-                change_str = ""
-                if entry.change < 0:
-                    change_str = "("
-                change_str += u"€"
-                change_euro = abs(int(entry.change / 100.0))
-                euro_parts = []
-                while change_euro > 0:
-                    euro_parts.insert(0, str(change_euro % 1000))
-                    change_euro = change_euro // 1000
-                if len(euro_parts) == 0:
-                    change_str += "0"
-                else:
-                    while True:
-                        change_str += euro_parts[0]
-                        euro_parts.pop(0)
-                        if len(euro_parts) == 0:
-                            break
-                        change_str += ","
-                change_str += "."
-                change_cents = abs(entry.change) % 100
-                change_cents = str(change_cents)
-                if len(change_cents) < 2:
-                    change_cents = "0" + change_cents
-                change_str += change_cents
-                if entry.change < 0:
-                    change_str += ")"
-                else:
-                    change_str += " "
-                while len(change_str) < 13:
-                    change_str = " " + change_str
-                table += change_str
+            str_change = entry.get_format_change_us(currency)
+            table += str_change
+        print("\n" + table)
         return table
     elif locale == "nl_NL":
 
@@ -245,4 +212,5 @@ def format_entries(currency, locale, entries):
                 while len(change_str) < 13:
                     change_str = " " + change_str
                 table += change_str
+        print("\n" + table)
         return table
