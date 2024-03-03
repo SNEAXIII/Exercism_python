@@ -8,6 +8,19 @@ class LedgerEntry:
         self.description = None
         self.change = None
 
+    def __format__(self, format_spec: str) -> str:
+        match format_spec:
+            case "str_date_en_US":
+                return self.date.strftime("%m/%d/%Y")
+            case "str_date_nl_NL":
+                return self.date.strftime("%Y/%m/%d")
+            case "str_concat_description":
+                if len(self.description) > 25:
+                    return f"{self.description:.22}..."
+                else:
+                    return f"{self.description:25}"
+
+
 
 def create_entry(date, description, change):
     entry = LedgerEntry()
@@ -21,32 +34,29 @@ def format_entries(currency, locale, entries):
     if locale == "en_US":
         # Generate Header Row
         space = " "
-        table = f"Date{space*7}| Description{space*15}| Change{space*7}"
+        table = f"Date{space * 7}| Description{space * 15}| Change{space * 7}"
 
         while len(entries) > 0:
             table += "\n"
 
             # Find next entry in order
-            min_entry_index = -1
+            min_entry_index = 0
             for i in range(len(entries)):
                 entry = entries[i]
-                if min_entry_index < 0:
-                    min_entry_index = i
-                    continue
                 min_entry = entries[min_entry_index]
                 if entry.date < min_entry.date:
                     min_entry_index = i
                     continue
                 if (
-                    entry.date == min_entry.date and
-                    entry.change < min_entry.change
+                        entry.date == min_entry.date and
+                        entry.change < min_entry.change
                 ):
                     min_entry_index = i
                     continue
                 if (
-                    entry.date == min_entry.date and
-                    entry.change == min_entry.change and
-                    entry.description < min_entry.description
+                        entry.date == min_entry.date and
+                        entry.change == min_entry.change and
+                        entry.description < min_entry.description
                 ):
                     min_entry_index = i
                     continue
@@ -54,38 +64,13 @@ def format_entries(currency, locale, entries):
             entries.pop(min_entry_index)
 
             # Write entry date to table
-            month = entry.date.month
-            month = str(month)
-            if len(month) < 2:
-                month = "0" + month
-            date_str = month
-            date_str += "/"
-            day = entry.date.day
-            day = str(day)
-            if len(day) < 2:
-                day = "0" + day
-            date_str += day
-            date_str += "/"
-            year = entry.date.year
-            year = str(year)
-            while len(year) < 4:
-                year = "0" + year
-            date_str += year
+            date_str = f"{entry:str_date_en_US}"
             table += date_str
             table += " | "
-
             # Write entry description to table
             # Truncate if necessary
-            if len(entry.description) > 25:
-                for i in range(22):
-                    table += entry.description[i]
-                table += "..."
-            else:
-                for i in range(25):
-                    if len(entry.description) > i:
-                        table += entry.description[i]
-                    else:
-                        table += " "
+            description = f"{entry:str_concat_description}"
+            table += description
             table += " | "
 
             # Write entry change to table
@@ -181,15 +166,15 @@ def format_entries(currency, locale, entries):
                     min_entry_index = i
                     continue
                 if (
-                    entry.date == min_entry.date and
-                    entry.change < min_entry.change
+                        entry.date == min_entry.date and
+                        entry.change < min_entry.change
                 ):
                     min_entry_index = i
                     continue
                 if (
-                    entry.date == min_entry.date and
-                    entry.change == min_entry.change and
-                    entry.description < min_entry.description
+                        entry.date == min_entry.date and
+                        entry.change == min_entry.change and
+                        entry.description < min_entry.description
                 ):
                     min_entry_index = i
                     continue
@@ -290,3 +275,19 @@ def format_entries(currency, locale, entries):
                 table += change_str
         return table
 
+
+currency = "USD"
+locale = "en_US"
+entries = [
+    create_entry("2015-01-01", "Get present", 1000),
+    create_entry("2015-01-01", "Buy present", -1000),
+]
+expected = "\n".join(
+    [
+        "Date       | Description               | Change       ",
+        "01/01/2015 | Buy present               |      ($10.00)",
+        "01/01/2015 | Get present               |       $10.00 ",
+    ]
+)
+print(f"actual =\n{format_entries(currency, locale, entries)}")
+print(f"expected =\n{expected}")
