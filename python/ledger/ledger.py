@@ -1,5 +1,6 @@
 from datetime import datetime
-from operator import itemgetter, attrgetter
+from operator import attrgetter
+
 
 class LedgerEntry:
     def __init__(self):
@@ -9,26 +10,26 @@ class LedgerEntry:
 
     def __format__(self, format_spec: str) -> str:
         match format_spec:
-            case "str_date_en_US":
-                return self.date.strftime("%m/%d/%Y")
-            case "str_date_nl_NL":
-                return self.date.strftime("%Y/%m/%d")
             case "str_concat_description":
                 if len(self.description) > 25:
                     return f"{self.description:.22}..."
                 return f"{self.description:25}"
-            # case "str_change_us_eur":
-            #     return self.get_format_change_usd("€")
 
-    def get_format_change_us(self, currency: str) -> str:
+    def get_format_time(self, time_format: str) -> str:
+        return self.date.strftime(time_format)
+
+    def get_format_change_us(self,locale, currency: str) -> str:
         money = f"{abs(self.change / 100):,.2f}"
         if self.change >= 0:
             str_change = f"{currency}{money} "
         else:
             str_change = f"({currency}{money})"
         return f"{str_change:>13}"
-def multi_sort(entries:list[LedgerEntry])->list[LedgerEntry]:
-    return sorted(entries, key=attrgetter("date","change","description"))
+
+
+def multi_sort(entries: list[LedgerEntry]) -> list[LedgerEntry]:
+    return sorted(entries, key=attrgetter("date", "change", "description"))
+
 
 def create_entry(date, description, change):
     entry = LedgerEntry()
@@ -43,22 +44,23 @@ translate_currency = {
     "EUR": "€"
 }
 translate_languages = {
-    "en_US": ("Date", "Description", "Change"),
-    "nl_NL": ("Datum", "Omschrijving", "Verandering")
+    "en_US": ("Date", "Description", "Change", "%m/%d/%Y"),
+    "nl_NL": ("Datum", "Omschrijving", "Verandering", "%Y/%m/%d")
 }
+
 
 def format_entries(currency, locale, entries):
     print()
     entries = multi_sort(entries)
-    # date,Description,Change = translate_languages
+    date, description, change, time_format = translate_languages[locale]
+    table = f"{date:<10} | {description:<25} | {change:<13}"
     if locale == "en_US":
         currency = translate_currency[currency]
-        table = f"{'Date':<10} | {'Description':<25} | {'Change':<13}"
 
         for entry in entries:
             table += "\n"
 
-            date_str = f"{entry:str_date_en_US}"
+            date_str = entry.get_format_time(time_format)
             table += date_str
             table += " | "
 
@@ -66,21 +68,11 @@ def format_entries(currency, locale, entries):
             table += description
             table += " | "
 
-            str_change = entry.get_format_change_us(currency)
+            str_change = entry.get_format_change_us(locale,currency)
             table += str_change
         print("\n" + table)
         return table
     elif locale == "nl_NL":
-
-        table = "Datum"
-        for _ in range(6):
-            table += " "
-        table += "| Omschrijving"
-        for _ in range(14):
-            table += " "
-        table += "| Verandering"
-        for _ in range(2):
-            table += " "
 
         while len(entries) > 0:
             table += "\n"
