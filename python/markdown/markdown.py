@@ -30,7 +30,7 @@ def transform_list_element_to_html(line: str) -> str:
 
 
 def check_is_paragraph(line: str) -> bool:
-    return bool(match('<h|<li', line))
+    return not bool(match('<h|<li', line))
 
 
 def transform_paragraph_to_html(line: str) -> str:
