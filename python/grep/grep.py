@@ -2,44 +2,84 @@
 # pylint: disable=missing-class-docstring
 # pylint: disable=missing-function-docstring
 
-def checkAndAddLine(is_full_match, pattern, line):
-    if is_full_match and pattern + "\n" == line:
-        return True
-    elif not is_full_match and pattern in line:
-        return True
-    return False
+class Grep:
+    def __init__(self, pattern, flags, files):
+        self.to_return = ""
+        self.pattern = pattern
+        self.files = files
+        self.set_flags(flags)
+        self.set_sensitivity()
+        self.match = self.get_comparaison_method()
+        self.add_to_return = self.get_return_method()
 
+    def set_flags(self, flags):
+        self.is_multiple_files: bool = 1 < len(self.files)
+        self.is_reverse_condition: bool = "-v" in flags
+        self.is_case_insensitive: bool = "-i" in flags
+        self.is_full_match: bool = "-x" in flags
+        self.is_add_number: bool = "-n" in flags
+        self.is_return_file_names: bool = "-l" in flags
 
-def grep(pattern, flags, files):
-    is_multiple_files: bool = 1 < len(files)
-    is_reverse_condition: bool = "-v" in flags
-    is_case_sensitive: bool = "-i" not in flags
-    is_full_match: bool = "-x" in flags
-    is_add_number: bool = "-n" in flags
-    # TODO rename this var
-    is_l:bool = "-l" in flags
+    def set_sensitivity(self):
+        if self.is_case_insensitive:
+            self.pattern = self.pattern.lower()
 
-    to_return = ""
-    for file_name in files:
+    def get_comparaison_method(self):
+        if self.is_full_match:
+            return self.is_pattern_equal_line
+        return self.is_pattern_is_in_line
+
+    def is_pattern_equal_line(self) -> bool:
+        match: bool = self.pattern + "\n" == self.current_line
+        if self.is_reverse_condition:
+            return not match
+        return match
+
+    def is_pattern_is_in_line(self) -> bool:
+        match: bool = self.pattern in self.current_line
+        if self.is_reverse_condition:
+            return not match
+        return match
+
+    def get_return_method(self):
+        if self.is_return_file_names:
+            return self.add_to_return_file_name
+        return self.add_to_return_line
+
+    def add_to_return_file_name(self):
+        if self.current_file_name not in self.to_return:
+            self.to_return += f"{self.current_file_name}\n"
+
+    def add_to_return_line(self):
+        prefix = ""
+        if self.is_multiple_files:
+            prefix += f"{self.current_file_name}:"
+        if self.is_add_number:
+            prefix += f"{self.current_index + 1}:"
+        self.to_return += prefix + self.current_copy_line
+
+    @staticmethod
+    def get_file_content(file_name):
         with open(file_name) as file:
-            file_content = file.readlines()
-        for index, line in enumerate(file_content):
-            prefix = ""
-            copy_line = line
-            if not is_case_sensitive:
-                line, pattern = line.lower(), pattern.lower()
-            is_grep: bool = checkAndAddLine(is_full_match, pattern, line)
-            if is_reverse_condition:
-                is_grep = not is_grep
-            if not is_grep:
-                continue
-            if is_l:
-                if file_name not in to_return:
-                    to_return += f"{file_name}\n"
-                continue
-            if is_multiple_files:
-                prefix += f"{file_name}:"
-            if is_add_number:
-                prefix += f"{index + 1}:"
-            to_return += prefix + copy_line
-    return to_return
+            return file.readlines()
+
+    def execute(self):
+        for file_name in self.files:
+            self.current_file_name = file_name
+            file_content = self.get_file_content(file_name)
+            for index, line in enumerate(file_content):
+                self.current_index = index
+                self.current_line = self.current_copy_line = line
+                if self.is_case_insensitive:
+                    self.current_line = line.lower()
+                if self.match():
+                    self.add_to_return()
+
+    def get_result(self):
+        return self.to_return
+
+
+def grep(str_pattern, str_flags, list_files):
+    obj_grep = Grep(str_pattern, str_flags, list_files)
+    obj_grep.execute()
+    return obj_grep.get_result()
