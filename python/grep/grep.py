@@ -4,7 +4,6 @@
 
 class Grep:
     def __init__(self, pattern, flags, files):
-        self.to_return = ""
         self.pattern = pattern
         self.files = files
         self.set_flags(flags)
@@ -30,16 +29,12 @@ class Grep:
         return self.is_pattern_is_in_line
 
     def is_pattern_equal_line(self) -> bool:
-        match: bool = self.pattern + "\n" == self.current_line
-        if self.is_reverse_condition:
-            return not match
-        return match
+        match: bool = self.pattern + "\n" == self.current_copy_line
+        return match ^ self.is_reverse_condition
 
     def is_pattern_is_in_line(self) -> bool:
-        match: bool = self.pattern in self.current_line
-        if self.is_reverse_condition:
-            return not match
-        return match
+        match: bool = self.pattern in self.current_copy_line
+        return match ^ self.is_reverse_condition
 
     def get_return_method(self):
         if self.is_return_file_names:
@@ -56,7 +51,7 @@ class Grep:
             prefix += f"{self.current_file_name}:"
         if self.is_add_number:
             prefix += f"{self.current_index + 1}:"
-        self.to_return += prefix + self.current_copy_line
+        self.to_return += prefix + self.current_line
 
     @staticmethod
     def get_file_content(file_name):
@@ -64,6 +59,11 @@ class Grep:
             return file.readlines()
 
     def execute(self):
+        self.to_return = ""
+        self.current_index = None
+        self.current_file_name = None
+        self.current_line = None
+        self.current_copy_line = None
         for file_name in self.files:
             self.current_file_name = file_name
             file_content = self.get_file_content(file_name)
@@ -71,7 +71,7 @@ class Grep:
                 self.current_index = index
                 self.current_line = self.current_copy_line = line
                 if self.is_case_insensitive:
-                    self.current_line = line.lower()
+                    self.current_copy_line = line.lower()
                 if self.match():
                     self.add_to_return()
 
