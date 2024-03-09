@@ -29,12 +29,10 @@ class Grep:
         return self.is_pattern_is_in_line
 
     def is_pattern_equal_line(self) -> bool:
-        match: bool = self.pattern + "\n" == self.current_copy_line
-        return match ^ self.is_reverse_condition
+        return self.pattern + "\n" == self.current_copy_line
 
     def is_pattern_is_in_line(self) -> bool:
-        match: bool = self.pattern in self.current_copy_line
-        return match ^ self.is_reverse_condition
+        return self.pattern in self.current_copy_line
 
     def get_return_method(self):
         if self.is_return_file_names:
@@ -72,7 +70,7 @@ class Grep:
                 self.current_line = self.current_copy_line = line
                 if self.is_case_insensitive:
                     self.current_copy_line = line.lower()
-                if self.match():
+                if self.match() ^ self.is_reverse_condition:
                     self.add_to_return()
 
     def get_result(self):
