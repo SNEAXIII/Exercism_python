@@ -24,18 +24,22 @@ class LedgerEntry:
 
     def get_format_change(self, locale: str, currency: str) -> str:
         if locale == ENUS:
-            money = f"{abs(self.change) / 100:,.2f}"
-            if self.change >= 0:
-                str_change = f"{currency}{money} "
-            else:
-                str_change = f"({currency}{money})"
+            return self.get_format_change_enus(currency)
         elif locale == NLNL:
-            money = f"{self.change / 100:,.2f}"
-            money = money.replace(",", "_").replace(".", ",").replace("_", ".")
-            str_change = f"{currency} {money} "
-        else:
-            raise Exception(f"Variable {locale = } is not defined")
-        return str_change
+            return self.get_format_change_nlnl(currency)
+        raise IndexError(f"Variable {locale = } is not defined")
+
+    def get_format_change_enus(self, currency):
+        money = f"{abs(self.change) / 100:,.2f}"
+        if self.change >= 0:
+            return f"{currency}{money} "
+        return f"({currency}{money})"
+
+    def get_format_change_nlnl(self, currency):
+        money = f"{self.change / 100:,.2f}"
+        translation = str.maketrans(".,", ",.")
+        money = money.translate(translation)
+        return f"{currency} {money} "
 
 
 def create_entry(date: str, description: str, change: int) -> LedgerEntry:
