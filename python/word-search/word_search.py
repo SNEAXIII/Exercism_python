@@ -20,7 +20,7 @@ class WordSearch:
         index_last = x + size
         if index_last > self.x_size:
             return False
-        extract = self.puzzle[y][x:index_last]
+        extract = self.universal_extract(word, point,1,0)
         if extract != word:
             return False
         return Point(x, y), Point(index_last - 1, y)
@@ -31,7 +31,8 @@ class WordSearch:
         index_first = index_last - size
         if index_first < 0:
             return False
-        extract = self.puzzle[point.y][index_first:index_last][::-1]
+        extract = self.universal_extract(word, point,-1,0)
+        print(f"{extract = }")
         if extract != word:
             return False
         return Point(point.x, point.y), Point(index_first, point.y)
@@ -45,6 +46,10 @@ class WordSearch:
         if extract != word:
             return False
         return Point(point.x, point.y), Point(point.x, index_last - 1)
+
+    def universal_extract(self, word, point_base, x_coef, y_coef):
+        size, x, y = len(word), point_base.x, point_base.y
+        return "".join(self.puzzle[y + (index * y_coef)][x + (index * x_coef)] for index in range(size))
 
     def __init__(self, puzzle):
         self.puzzle = puzzle
@@ -87,7 +92,7 @@ puzzle = WordSearch(
         "clojurermt",
     ]
 )
-print(puzzle.check_s("ecmascript", Point(9, 0)))
+print(puzzle.universal_extract("ecmascript", Point(9, 0),0,-1)[::-1])
 # wordsearch = WordSearch(["rixilelhrs"])
 # print(wordsearch.search("elixir"))
 # print(wordsearch.check_e("clojure", 0, 0))
