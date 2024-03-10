@@ -37,7 +37,6 @@ class WordSearch:
         if index_first < 0:
             return False
         extract = self.universal_extract(word, point, 0, -1)
-        print(f"{extract = }")
         if extract != word:
             return False
         return Point(point.x, point.y), Point(point.x, index_first)
@@ -82,22 +81,3 @@ class WordSearch:
             if result := check(word, start_point):
                 return result
 
-
-puzzle = WordSearch(
-    [
-        "jefblpepre",
-        "camdcimgtc",
-        "oivokprjsm",
-        "pbwasqroua",
-        "rixilelhrs",
-        "wolcqlirpc",
-        "screeaumgr",
-        "alxhpburyi",
-        "jalaycalmp",
-        "clojurermt",
-    ]
-)
-print(puzzle.universal_extract("ecmascript", Point(9, 0), 0, -1)[::-1])
-# wordsearch = WordSearch(["rixilelhrs"])
-# print(wordsearch.search("elixir"))
-# print(wordsearch.check_e("clojure", 0, 0))
