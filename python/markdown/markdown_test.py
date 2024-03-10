@@ -101,3 +101,9 @@ class MarkdownTest(unittest.TestCase):
             parse("# Start a list\n* Item 1\n* Item 2\nEnd a list"),
             "<h1>Start a list</h1><ul><li>Item 1</li><li>Item 2</li></ul><p>End a list</p>",
         )
+    def test_perso(self):
+        self.assertEqual(
+            parse("# Start a list\n* __Bold item 1__\n# Start a new list\n* _New italic item 1_"),
+            "<h1>Start a list</h1><ul><li><strong>Bold item 1</strong></li></ul>"+
+            "<h1>Start a new list</h1><ul><li><em>New italic item 1</em></li></ul>",
+        )
