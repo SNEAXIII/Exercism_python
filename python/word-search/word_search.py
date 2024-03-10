@@ -15,18 +15,16 @@ class Point:
 
 class WordSearch:
     def check_e(self, word, point):
-        x, y = point.x, point.y
-        index_last = x + len(word)
-        if index_last > self.x_size:
+        index_last = point.x + len(word) - 1
+        if index_last >= self.x_size:
             return False
         extract = self.universal_extract(word, point, 1, 0)
         if extract != word:
             return False
-        return Point(x, y), Point(index_last - 1, y)
+        return Point(point.x, point.y), Point(index_last, point.y)
 
     def check_w(self, word, point):
-        index_last = point.x + 1
-        index_first = index_last - len(word)
+        index_first = point.x - len(word) + 1
         if index_first < 0:
             return False
         extract = self.universal_extract(word, point, -1, 0)
@@ -35,8 +33,7 @@ class WordSearch:
         return Point(point.x, point.y), Point(index_first, point.y)
 
     def check_n(self, word, point):
-        index_last = point.y + 1
-        index_first = index_last - len(word)
+        index_first = point.y - len(word) + 1
         if index_first < 0:
             return False
         extract = self.universal_extract(word, point, 0, -1)
@@ -46,13 +43,13 @@ class WordSearch:
         return Point(point.x, point.y), Point(point.x, index_first)
 
     def check_s(self, word, point):
-        index_last = point.y + len(word)
-        if index_last > self.y_size:
+        index_last = point.y + len(word) - 1
+        if index_last >= self.y_size:
             return False
         extract = self.universal_extract(word, point, 0, 1)
         if extract != word:
             return False
-        return Point(point.x, point.y), Point(point.x, index_last - 1)
+        return Point(point.x, point.y), Point(point.x, index_last)
 
     def universal_extract(self, word, point_base, x_coef, y_coef):
         size, x, y = len(word), point_base.x, point_base.y
