@@ -52,7 +52,13 @@ class WordSearch:
 
     def universal_extract(self, word, point_base, x_coef, y_coef):
         size, x, y = len(word), point_base.x, point_base.y
-        return "".join(self.puzzle[y + (index * y_coef)][x + (index * x_coef)] for index in range(size))
+        extracted_word = ""
+        for index in range(size):
+            x_actual = x + (index * x_coef)
+            y_actual = y + (index * y_coef)
+            selected_letter = self.puzzle[y_actual][x_actual]
+            extracted_word += selected_letter
+        return extracted_word
 
     def __init__(self, puzzle):
         self.puzzle = puzzle
@@ -80,4 +86,3 @@ class WordSearch:
         for check, start_point in product(self.check_methods, indices):
             if result := check(word, start_point):
                 return result
-
