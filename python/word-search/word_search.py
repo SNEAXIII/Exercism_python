@@ -23,7 +23,7 @@ class WordSearch:
         extract = self.puzzle[y][x:index_last]
         if extract != word:
             return False
-        return Point(x,y),Point(index_last-1,y)
+        return Point(x, y), Point(index_last - 1, y)
 
     def check_w(self, word, point):
         size = len(word)
@@ -34,7 +34,17 @@ class WordSearch:
         extract = self.puzzle[point.y][index_first:index_last][::-1]
         if extract != word:
             return False
-        return Point(point.x,point.y),Point(index_first,point.y)
+        return Point(point.x, point.y), Point(index_first, point.y)
+
+    def check_s(self, word, point):
+        size = len(word)
+        index_last = point.y + size
+        if index_last > self.y_size:
+            return False
+        extract = "".join([line[point.x] for line in self.puzzle[point.y: index_last + 1]])
+        if extract != word:
+            return False
+        return Point(point.x, point.y), Point(point.x, index_last - 1)
 
     def __init__(self, puzzle):
         self.puzzle = puzzle
@@ -43,6 +53,7 @@ class WordSearch:
         self.check_methods = [
             self.check_e,
             self.check_w,
+            self.check_s
         ]
 
     def find_all_one_letter_in_a_dict(self, letter):
@@ -62,6 +73,21 @@ class WordSearch:
                 return result
 
 
-wordsearch = WordSearch(["rixilelhrs"])
-print(wordsearch.search("elixir"))
+puzzle = WordSearch(
+    [
+        "jefblpepre",
+        "camdcimgtc",
+        "oivokprjsm",
+        "pbwasqroua",
+        "rixilelhrs",
+        "wolcqlirpc",
+        "screeaumgr",
+        "alxhpburyi",
+        "jalaycalmp",
+        "clojurermt",
+    ]
+)
+print(puzzle.check_s("ecmascript", Point(9, 0)))
+# wordsearch = WordSearch(["rixilelhrs"])
+# print(wordsearch.search("elixir"))
 # print(wordsearch.check_e("clojure", 0, 0))
