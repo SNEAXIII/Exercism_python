@@ -15,34 +15,41 @@ class Point:
 
 class WordSearch:
     def check_e(self, word, point):
-        size = len(word)
         x, y = point.x, point.y
-        index_last = x + size
+        index_last = x + len(word)
         if index_last > self.x_size:
             return False
-        extract = self.universal_extract(word, point,1,0)
+        extract = self.universal_extract(word, point, 1, 0)
         if extract != word:
             return False
         return Point(x, y), Point(index_last - 1, y)
 
     def check_w(self, word, point):
-        size = len(word)
         index_last = point.x + 1
-        index_first = index_last - size
+        index_first = index_last - len(word)
         if index_first < 0:
             return False
-        extract = self.universal_extract(word, point,-1,0)
-        print(f"{extract = }")
+        extract = self.universal_extract(word, point, -1, 0)
         if extract != word:
             return False
         return Point(point.x, point.y), Point(index_first, point.y)
 
+    def check_n(self, word, point):
+        index_last = point.y + 1
+        index_first = index_last - len(word)
+        if index_first < 0:
+            return False
+        extract = self.universal_extract(word, point, 0, -1)
+        print(f"{extract = }")
+        if extract != word:
+            return False
+        return Point(point.x, point.y), Point(point.x, index_first)
+
     def check_s(self, word, point):
-        size = len(word)
-        index_last = point.y + size
+        index_last = point.y + len(word)
         if index_last > self.y_size:
             return False
-        extract = "".join([line[point.x] for line in self.puzzle[point.y: index_last + 1]])
+        extract = self.universal_extract(word, point, 0, 1)
         if extract != word:
             return False
         return Point(point.x, point.y), Point(point.x, index_last - 1)
@@ -58,7 +65,8 @@ class WordSearch:
         self.check_methods = [
             self.check_e,
             self.check_w,
-            self.check_s
+            self.check_s,
+            self.check_n
         ]
 
     def find_all_one_letter_in_a_dict(self, letter):
@@ -92,7 +100,7 @@ puzzle = WordSearch(
         "clojurermt",
     ]
 )
-print(puzzle.universal_extract("ecmascript", Point(9, 0),0,-1)[::-1])
+print(puzzle.universal_extract("ecmascript", Point(9, 0), 0, -1)[::-1])
 # wordsearch = WordSearch(["rixilelhrs"])
 # print(wordsearch.search("elixir"))
 # print(wordsearch.check_e("clojure", 0, 0))
