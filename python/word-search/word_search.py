@@ -15,24 +15,26 @@ class Point:
 
 class WordSearch:
     def check_e(self, word, point):
-        x, y = point.x, point.y
         size = len(word)
-        if x + size > self.x_size:
+        x, y = point.x, point.y
+        index_last = x + size
+        if index_last > self.x_size:
             return False
-        extract = self.puzzle[y][x:x + size]
+        extract = self.puzzle[y][x:index_last]
         if extract != word:
             return False
-        return True
+        return Point(x,y),Point(index_last-1,y)
 
     def check_w(self, word, point):
-        x,y = point.x,point.y
         size = len(word)
-        if x - size + 1 < 0:
+        index_last = point.x + 1
+        index_first = index_last - size
+        if index_first < 0:
             return False
-        extract = self.puzzle[y][x - size + 1:x + 1][::-1]
+        extract = self.puzzle[point.y][index_first:index_last][::-1]
         if extract != word:
             return False
-        return True
+        return Point(point.x,point.y),Point(index_first,point.y)
 
     def __init__(self, puzzle):
         self.puzzle = puzzle
@@ -60,6 +62,6 @@ class WordSearch:
                 return result
 
 
-wordsearch = WordSearch(["clojurermt"])
-print(wordsearch.search("clojure"))
+wordsearch = WordSearch(["rixilelhrs"])
+print(wordsearch.search("elixir"))
 # print(wordsearch.check_e("clojure", 0, 0))
