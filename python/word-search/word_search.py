@@ -14,48 +14,26 @@ class Point:
 
 
 class WordSearch:
-    def check_e(self, word, point):
-        index_last = point.x + len(word) - 1
-        if index_last >= self.x_size:
-            return False
-        extract = self.universal_extract(word, point, 1, 0)
-        if extract != word:
-            return False
-        return Point(point.x, point.y), Point(index_last, point.y)
 
-    def check_w(self, word, point):
-        index_first = point.x - len(word) + 1
-        if index_first < 0:
+    def universal_check(self, word, point, x_coef, y_coef):
+        size = len(word)
+        x, y = point.x, point.y
+        x_new = x + (x_coef * size) - x_coef
+        if any((x_new >= self.x_size, x_new < 0)):
             return False
-        extract = self.universal_extract(word, point, -1, 0)
-        if extract != word:
+        y_new = y + (y_coef * size) - y_coef
+        if any((y_new >= self.x_size, y_new < 0)):
             return False
-        return Point(point.x, point.y), Point(index_first, point.y)
+        extract = self.universal_extract(size, point, x_coef, y_coef)
+        if extract == word:
+            return Point(x, y), Point(x_new, y_new)
+        return False
 
-    def check_n(self, word, point):
-        index_first = point.y - len(word) + 1
-        if index_first < 0:
-            return False
-        extract = self.universal_extract(word, point, 0, -1)
-        if extract != word:
-            return False
-        return Point(point.x, point.y), Point(point.x, index_first)
-
-    def check_s(self, word, point):
-        index_last = point.y + len(word) - 1
-        if index_last >= self.y_size:
-            return False
-        extract = self.universal_extract(word, point, 0, 1)
-        if extract != word:
-            return False
-        return Point(point.x, point.y), Point(point.x, index_last)
-
-    def universal_extract(self, word, point_base, x_coef, y_coef):
-        size, x, y = len(word), point_base.x, point_base.y
+    def universal_extract(self, size, point_base, x_coef, y_coef):
         extracted_word = ""
         for index in range(size):
-            x_actual = x + (index * x_coef)
-            y_actual = y + (index * y_coef)
+            x_actual = point_base.x + (index * x_coef)
+            y_actual = point_base.y + (index * y_coef)
             selected_letter = self.puzzle[y_actual][x_actual]
             extracted_word += selected_letter
         return extracted_word
@@ -64,12 +42,6 @@ class WordSearch:
         self.puzzle = puzzle
         self.y_size = len(puzzle)
         self.x_size = len(puzzle[0])
-        self.check_methods = [
-            self.check_e,
-            self.check_w,
-            self.check_s,
-            self.check_n
-        ]
 
     def find_all_one_letter_in_a_dict(self, letter):
         indices = []
@@ -82,7 +54,9 @@ class WordSearch:
 
     def search(self, word):
         first_letter = word[0]
+        coefs = (-1, 0, 1)
+        combinaison = [(x, y) for x, y in product(coefs, coefs) if any((x, y))]
         indices = self.find_all_one_letter_in_a_dict(first_letter)
-        for check, start_point in product(self.check_methods, indices):
-            if result := check(word, start_point):
+        for (x_coef, y_coef), start_point in product(combinaison, indices):
+            if result := self.universal_check(word, start_point, x_coef, y_coef):
                 return result
