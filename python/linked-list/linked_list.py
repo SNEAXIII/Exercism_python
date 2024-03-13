@@ -84,21 +84,14 @@ class LinkedList:
             current = current.right
         raise ValueError("Value not found")
     def delete(self, param):
-        self.len -= 1
-        if not self.is_not_empty():
-            self.reset()
-            return
         current = self.find_the_first_occurence(param)
         left,right = current.left,current.right
         if left:
             left.right = right
         if right:
             right.left = left
-        if current is self.head and  current.left:
-            self.head = current.left
-        if current is self.tail and  current.right:
-            self.tail = current.right
 
+        self.len-=1
     def __len__(self):
         return self.len
 
