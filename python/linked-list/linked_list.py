@@ -23,11 +23,15 @@ class LinkedList:
         self.len = 0
         self.tail = self.head = None
 
+    def is_empty(self):
+        return self.len <= 0
+
     def is_not_empty(self):
-        return self.len > 0
+        return not self.is_empty()
 
     def is_critical(self):
         return self.len < 0
+
     def push(self, param):
         if self.is_not_empty():
             new_head = Node(param)
@@ -38,6 +42,7 @@ class LinkedList:
         else:
             self.head = self.tail = Node(param)
         self.len += 1
+
     def unshift(self, param):
         if self.is_not_empty():
             new_tail = Node(param)
@@ -48,6 +53,7 @@ class LinkedList:
         else:
             self.head = self.tail = Node(param)
         self.len += 1
+
     def shift(self):
         self.len -= 1
         if self.is_critical():
@@ -60,8 +66,6 @@ class LinkedList:
         else:
             self.reset()
         return return_value
-
-
 
     def pop(self):
         self.len -= 1
@@ -76,56 +80,50 @@ class LinkedList:
             self.reset()
         return return_value
 
-    def find_the_first_occurence(self,param):
+    def find_the_first_occurence(self, param):
         current = self.tail
         for _ in range(self.len):
             if current.value == param:
                 return current
             current = current.right
         raise ValueError("Value not found")
+
     def delete(self, param):
         current = self.find_the_first_occurence(param)
-        left,right = current.left,current.right
-        if left:
-            left.right = right
-        if right:
-            right.left = left
+        left, right = current.left, current.right
+        if self.len == 1:
+            self.reset()
+            return
+        elif self.len == 2:
+            for node in (left, right):
+                if node:
+                    self.tail = self.head = Node(node.value)
+            self.len -= 1
+            return
+        if current is self.head:
+            self.head = left
+        elif current is self.tail:
+            self.tail = right
+        if left: left.right = right
+        if right: right.left = left
+        self.len -= 1
 
-        self.len-=1
     def __len__(self):
         return self.len
 
     def __str__(self):
-        result = f"({self.len})/ "
-        current = self.tail
         if self.is_not_empty():
-            print(bool(current.right))
+            to_right = f"({self.len})/ "
+            current = self.tail
             while bool(current.right):
-                result += str(current.value) + " --> "
+                to_right += str(current.value) + " --> "
                 current = current.right
-            return result + str(current.value)
+            to_right += str(current.value) + "\n"
+            to_left = ""
+            current = self.head
+            while bool(current.left):
+                to_left = " <-- " + str(current.value) + to_left
+                current = current.left
+            to_left = " " * 5 + str(current.value) + to_left + "\n"
+            return to_right + to_left
         return "List is empty"
-
-
-
-
-linked_list = LinkedList()
-linked_list.push(9)
-linked_list.push(99)
-linked_list.push(999)
-linked_list.push(9999)
-a = "test"
-print(linked_list)
-print("____________")
-print(linked_list.pop())
-print(linked_list.pop())
-print(linked_list.pop())
-print(linked_list.pop())
-print("____________")
-print(linked_list)
-linked_list.unshift(8)
-linked_list.unshift(88)
-print("____________")
-print(linked_list)
-print("____________")
-# dump(linked_list.tail)
