@@ -4,16 +4,6 @@ class Node:
         self.value = value
         self.right: Node = right
 
-    def __str__(self):
-        left_val = None
-        if self.left:
-            left_val = self.left.value
-        right_val = None
-        if self.right:
-            right_val = self.right.value
-
-        return f"{left_val}<--{self.value}-->{right_val}"
-
 
 class LinkedList:
     def __init__(self):
@@ -110,20 +100,3 @@ class LinkedList:
 
     def __len__(self):
         return self.len
-
-    def __str__(self):
-        if self.is_not_empty():
-            to_right = f"({self.len})/ "
-            current = self.tail
-            while bool(current.right):
-                to_right += str(current.value) + " --> "
-                current = current.right
-            to_right += str(current.value) + "\n"
-            to_left = ""
-            current = self.head
-            while bool(current.left):
-                to_left = " <-- " + str(current.value) + to_left
-                current = current.left
-            to_left = " " * 5 + str(current.value) + to_left + "\n"
-            return to_right + to_left
-        return "List is empty"
